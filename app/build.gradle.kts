@@ -40,7 +40,7 @@ fun com.android.build.api.dsl.BuildType.setupBilling() {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
     buildToolsVersion = "34.0.0"
     defaultConfig {
         applicationId = "tk.hack5.treblecheck"
