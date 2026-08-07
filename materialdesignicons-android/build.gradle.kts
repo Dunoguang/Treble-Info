@@ -7,13 +7,13 @@ plugins {
 }
 
 group = "com.github.penn5"
-version = "0.2.1"
+version = "0.1.2"
 
 gradlePlugin {
     plugins {
-        register("poeditorPlugin") {
-            id = "poeditor-android"
-            implementationClass = "com.github.penn5.PoEditorPlugin"
+        register("materialdesigniconsPlugin") {
+            id = "materialdesignicons-android"
+            implementationClass = "com.github.penn5.MaterialDesignIconsPlugin"
         }
     }
 }
@@ -25,7 +25,7 @@ repositories {
 dependencies {
     compileOnly(gradleApi())
     implementation("com.android.tools.build:gradle:8.0.1")
-    implementation("org.redundent:kotlin-xml-builder:1.9.0")
+    implementation("commons-io:commons-io:2.11.0")
 }
 
 java {
