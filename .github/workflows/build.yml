@@ -52,7 +52,7 @@ jobs:
           fi
 
       - name: 📦 打包 Free Release APK
-        run: gradle --no-daemon :app:assembleFreeRelease
+        run: gradle --no-daemon --console=plain :app:assembleFreeRelease
 
       - name: 📤 上传 APK 到 GitHub Artifacts
         if: success()
