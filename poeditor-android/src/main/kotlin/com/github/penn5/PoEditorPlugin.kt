@@ -123,9 +123,9 @@ open class ImportPoEditorStringsTask : ImportPoEditorStringsBaseTask<File>, Defa
     fun doAction() = super.doBaseAction()
 
     override fun init(): File {
-        val srcSet = project.android?.sourceSets?.associate { Pair(it.name, it.res.srcDirs) }?.getOrDefault("main", null)
-        val resDir = (srcSet ?: throw RuntimeException("Unable to detect srcSet for res directory")).elementAtOrNull(0)
-        resDir ?: throw RuntimeException("Unable to detect res directory for srcSet")
+        val resDir = project.file("src/main/res")
+        if (!resDir.isDirectory)
+            throw RuntimeException("Unable to detect res directory for srcSet")
 
         for (name in resDir.list { _, name -> name.startsWith("values") }!!) {
             val dir = resDir.resolve(name)
