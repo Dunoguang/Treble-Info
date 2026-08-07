@@ -132,9 +132,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     sourceSets {
         get("test").java.srcDir("src/sharedTest/java")
         get("test").kotlin.srcDir("src/sharedTest/java")
@@ -192,5 +189,11 @@ tasks.getByName("preBuild") {
 tasks.register("versionName") {
     doLast {
         println(android.defaultConfig.versionName)
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
