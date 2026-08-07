@@ -16,7 +16,13 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: 🔗 初始化子模块（浅克隆加速）
-        run: git submodule update --init --recursive --depth 1
+        run: |
+          echo "::group::🔄 子模块拉取日志"
+          set +e
+          git submodule update --init --recursive --depth 1 -q
+          st=$?
+          echo "::endgroup::"
+          exit $st
 
       - name: ☕ Java 25 环境（最新稳定版）
         uses: actions/setup-java@v5.7.0
@@ -52,7 +58,13 @@ jobs:
           fi
 
       - name: 📦 打包 Free Release APK
-        run: gradle --no-daemon --console=plain :app:assembleFreeRelease
+        run: |
+          echo "::group::📦 Gradle 构建输出（点击展开）"
+          set +e
+          gradle --no-daemon --console=plain :app:assembleFreeRelease 2>&1
+          st=$?
+          echo "::endgroup::"
+          exit $st
 
       - name: 📤 上传 APK 到 GitHub Artifacts
         if: success()
