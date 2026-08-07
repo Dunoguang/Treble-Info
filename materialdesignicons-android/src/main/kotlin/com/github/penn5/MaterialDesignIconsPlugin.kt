@@ -1,6 +1,6 @@
 package com.github.penn5
 
-import com.android.build.gradle.BaseExtension
+import com.android.build.api.dsl.ApplicationExtension
 import groovy.json.JsonSlurper
 import org.apache.commons.io.output.WriterOutputStream
 import org.gradle.api.DefaultTask
@@ -24,7 +24,7 @@ private const val BASE_CDN_URL = "https://cdn.jsdelivr.net/npm/@mdi/svg"
 
 private const val SIGNATURE = "<!-- File auto-synced, do not edit! MaterialDesignIcons ID: "
 
-val Project.android: BaseExtension? get() = findProperty("android") as BaseExtension?
+val Project.android: ApplicationExtension? get() = extensions.findByType(ApplicationExtension::class.java)
 
 @Suppress("unused")
 class MaterialDesignIconsPlugin : Plugin<Project> {

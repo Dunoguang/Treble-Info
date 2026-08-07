@@ -1,6 +1,6 @@
 package com.github.penn5
 
-import com.android.build.gradle.BaseExtension
+import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -19,7 +19,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 
-val Project.android: BaseExtension? get() = findProperty("android") as BaseExtension?
+val Project.android: ApplicationExtension? get() = extensions.findByType(ApplicationExtension::class.java)
 val Project.poeditor: PoEditorPluginExtension get() = findProperty("poeditor") as PoEditorPluginExtension
 
 @Suppress("unused")
