@@ -22,7 +22,6 @@ import com.android.build.api.variant.BuildConfigField
 
 plugins {
     id("com.android.application")
-    kotlin("android")
     id("poeditor-android")
     id("materialdesignicons-android")
     id("kotlin-parcelize")
