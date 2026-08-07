@@ -37,24 +37,15 @@ jobs:
           set -e
           if [ -n "$KEYSTORE_BASE64" ] && [ -n "$STORE_PASSWORD" ]; then
             echo "$KEYSTORE_BASE64" | base64 -d > app/release.p12
-            cat > app/signing.properties <<PROP
-            storeFile=release.p12
-            storePassword=$STORE_PASSWORD
-            keyAlias=$KEY_ALIAS
-            keyPassword=$KEY_PASSWORD
-            PROP
+            printf 'storeFile=release.p12\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+              "$STORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > app/signing.properties
             echo "✅ 已配置正式签名"
           else
             keytool -genkeypair -v -keystore app/release.p12 -storetype PKCS12 \
               -storepass trebleinfo -keypass trebleinfo -alias treble \
               -keyalg RSA -keysize 2048 -validity 10000 \
               -dname "CN=Treble Info CI,O=Treble Info,C=CN" >/dev/null 2>&1
-            cat > app/signing.properties <<PROP
-            storeFile=release.p12
-            storePassword=trebleinfo
-            keyAlias=treble
-            keyPassword=trebleinfo
-            PROP
+            printf 'storeFile=release.p12\nstorePassword=trebleinfo\nkeyAlias=treble\nkeyPassword=trebleinfo\n' > app/signing.properties
             echo "⚠️ 无签名密钥，使用 CI 临时签名（APK 可安装）"
           fi
 
