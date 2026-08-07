@@ -35,6 +35,12 @@ jobs:
         with:
           gradle-version: '9.7.0'
 
+      - name: 💾 缓存 CI 签名密钥（保证多次构建签名一致）
+        uses: actions/cache@v6.1.0
+        with:
+          path: app/release.p12
+          key: treble-info-ci-signing-keystore-v1
+
       - name: 🔑 签名配置
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
@@ -43,18 +49,22 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
         run: |
           set -e
+          set -e
           if [ -n "$KEYSTORE_BASE64" ] && [ -n "$STORE_PASSWORD" ]; then
             echo "$KEYSTORE_BASE64" | base64 -d > app/release.p12
             printf 'storeFile=release.p12\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
               "$STORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > app/signing.properties
             echo "✅ 已配置正式签名"
+          elif [ -f app/release.p12 ]; then
+            printf 'storeFile=release.p12\nstorePassword=trebleinfo\nkeyAlias=treble\nkeyPassword=trebleinfo\n' > app/signing.properties
+            echo "♻️ 使用缓存密钥签名（与上次一致）"
           else
             keytool -genkeypair -v -keystore app/release.p12 -storetype PKCS12 \
               -storepass trebleinfo -keypass trebleinfo -alias treble \
               -keyalg RSA -keysize 2048 -validity 10000 \
               -dname "CN=Treble Info CI,O=Treble Info,C=CN" >/dev/null 2>&1
             printf 'storeFile=release.p12\nstorePassword=trebleinfo\nkeyAlias=treble\nkeyPassword=trebleinfo\n' > app/signing.properties
-            echo "⚠️ 无签名密钥，使用 CI 临时签名（APK 可安装）"
+            echo "⚠️ 首次生成 CI 临时密钥（已缓存，后续构建签名一致）"
           fi
 
       - name: 📦 打包 Free Release APK
