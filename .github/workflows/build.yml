@@ -24,8 +24,10 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - name: 🐘 Gradle 环境准备
+      - name: 🐘 Gradle 9.7 环境准备（直接安装，绕开 wrapper 下载校验）
         uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          gradle-version: '9.7.0'
 
       - name: 🔑 签名配置
         env:
@@ -50,7 +52,7 @@ jobs:
           fi
 
       - name: 📦 打包 Free Release APK
-        run: ./gradlew --no-daemon :app:assembleFreeRelease
+        run: gradle --no-daemon :app:assembleFreeRelease
 
       - name: 📤 上传 APK 到 GitHub Artifacts
         if: success()
