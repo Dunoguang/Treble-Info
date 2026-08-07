@@ -1,0 +1,97 @@
+name: 📦 Treble Info 云端构建
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 拉取代码（含子模块）
+        uses: actions/checkout@v7.0.1
+        with:
+          submodules: recursive
+          shallow-submodules: true  # googlesource 支持按锁定 SHA 浅克隆，避免全量历史
+
+      - name: ☕ Java 25 环境（最新稳定版）
+        uses: actions/setup-java@v5.7.0
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: 🐘 Gradle 环境准备
+        uses: gradle/actions/setup-gradle@v6.3.0
+
+      - name: 🔑 签名配置
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+        run: |
+          set -e
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$STORE_PASSWORD" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > app/release.p12
+            cat > app/signing.properties <<PROP
+            storeFile=release.p12
+            storePassword=$STORE_PASSWORD
+            keyAlias=$KEY_ALIAS
+            keyPassword=$KEY_PASSWORD
+            PROP
+            echo "✅ 已配置正式签名"
+          else
+            keytool -genkeypair -v -keystore app/release.p12 -storetype PKCS12 \
+              -storepass trebleinfo -keypass trebleinfo -alias treble \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Treble Info CI,O=Treble Info,C=CN" >/dev/null 2>&1
+            cat > app/signing.properties <<PROP
+            storeFile=release.p12
+            storePassword=trebleinfo
+            keyAlias=treble
+            keyPassword=trebleinfo
+            PROP
+            echo "⚠️ 无签名密钥，使用 CI 临时签名（APK 可安装）"
+          fi
+
+      - name: 📦 打包 Free Release APK
+        run: ./gradlew --no-daemon :app:assembleFreeRelease
+
+      - name: 📤 上传 APK 到 GitHub Artifacts
+        if: success()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: treble-info-free-release-apk
+          path: app/build/outputs/apk/free/release/*.apk
+          if-no-files-found: error
+
+      - name: ☁️ 生成临时下载链接并写入 Summary
+        if: success()
+        run: |
+          APK=$(find app/build/outputs/apk/free/release -name "*.apk" ! -name "*-unsigned.apk" | head -1)
+          if [ ! -f "$APK" ]; then
+            echo "❌ 未找到 Release APK" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          SIZE=$(du -h "$APK" | cut -f1)
+          echo "📤 上传至临时网盘..."
+          RESP=$(curl -sS -X POST https://tempfile.org/api/upload/local \
+            -F "files=@${APK}" -F "expiryHours=48")
+          URL=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['files'][0]['url'] + 'download')" 2>/dev/null || echo "")
+          {
+            echo "## 📦 Treble Info 构建完成"
+            echo ""
+            echo "| 产物 | 大小 |"
+            echo "|------|------|"
+            echo "| Free Release APK | $SIZE |"
+            if [ -n "$URL" ]; then
+              echo ""
+              echo "🔗 48小时临时下载链接：\`${URL}\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "DOWNLOAD_URL=${URL}"
+          echo "APK_PATH=${APK}"

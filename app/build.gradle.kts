@@ -26,6 +26,7 @@ plugins {
     id("poeditor-android")
     id("materialdesignicons-android")
     id("kotlin-parcelize")
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.aboutlibraries)
 }
 
@@ -45,7 +46,7 @@ fun com.android.build.api.dsl.BuildType.setupBilling() {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
     buildToolsVersion = "34.0.0"
     defaultConfig {
         applicationId = "tk.hack5.treblecheck"
@@ -128,14 +129,11 @@ android {
         checkDependencies = true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+        jvmTarget = "17"
     }
     sourceSets {
         get("test").java.srcDir("src/sharedTest/java")
