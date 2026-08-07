@@ -189,7 +189,7 @@ object TrebleDetector {
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun getFrameworkCompatibilityMatrices(sepolicyVersion: Pair<Int, Int>) = sequence {
+    fun getFrameworkCompatibilityMatrices(sepolicyVersion: Pair<Int, Int>) = sequence<String> {
         // Although SP usually contains a valid FCM,
         // we could be running a device-specific image which has a weird FCM,
         // or it could be older than vendor.

@@ -44,7 +44,7 @@ android {
     buildToolsVersion = "34.0.0"
     defaultConfig {
         applicationId = "tk.hack5.treblecheck"
-        minSdk = 22
+        minSdk = 23
         targetSdk = 34
         loadProperties(file("version.properties").absolutePath).run {
             versionCode = getProperty("versionCode").toInt()
