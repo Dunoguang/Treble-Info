@@ -29,11 +29,6 @@ plugins {
     alias(libs.plugins.aboutlibraries)
 }
 
-aboutLibraries {
-    configPath = projectDir.resolve("librariesConfig").toString()
-    excludeFields = arrayOf("generated")
-}
-
 fun com.android.build.api.dsl.BuildType.setupBilling() {
     loadProperties(file("billing.properties").absolutePath).run {
         buildConfigField("String", "GPLAY_PRODUCT", getProperty("gplayProduct"))
